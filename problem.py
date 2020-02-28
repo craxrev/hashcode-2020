@@ -63,6 +63,10 @@ class Problem:
             days_left_after_signup = days - self.LIBS_DICT[i]['t']
             if days_left_after_signup > 0:
                 score, books = self._lib_best_scored_books(i, days_left_after_signup)
+                if self.idx == 5:
+                    score = (len(books) * score) / self.LIBS_DICT[i]['t']
+                else:
+                    score /= self.LIBS_DICT[i]['t']
                 if score > best_lib_score:
                     best_lib_score, best_lib_idx, best_lib_books = score, i, books
 
@@ -90,21 +94,24 @@ class Problem:
 
     def test(self, idx):
 
+        self.idx = idx
         self._prepare_input(inputs[idx] + '.txt')
         self._work()
         self._generate_output(inputs[idx] + '.test')
-        self.score(inputs[idx] + '.test')
+        score = self._score(inputs[idx] + '.test')
+        print('test %s score is : %d' % (chr(97+idx), score))
 
 
     def solve(self):
 
         for idx in range(len(inputs)):
+            self.idx = idx
             self._prepare_input(inputs[idx] + '.txt')
             self._work()
             self._generate_output(inputs[idx] + '.out')
-            self.score(inputs[idx] + '.out')
+        self.scores()
 
-    def score(self, out_filename):
+    def _score(self, out_filename):
 
         # TODO: verify books for days inconsistencies
 
@@ -122,14 +129,28 @@ class Problem:
             for j in range(libs[i]['b']):
                 book_idx = libs[i]['books'][j]
                 score += self.S[book_idx]
-        print(score)
+        return score
+
+    def scores(self):
+
+        scores = []
+
+        with open('output/scores', 'w') as scores_file:
+            for idx in range(len(inputs)):
+                self._prepare_input(inputs[idx] + '.txt')
+                score = self._score(inputs[idx] + '.out')
+                scores.append(score)
+            scores_file.write('\n'.join(chr(97 + idx) + ' : ' + str(scores[idx]) for idx in range(len(scores))))
+            scores_file.write('\n\n')
+            scores_file.write('s: %d' % sum(scores))
 
 
 def main():
 
     p = Problem()
     p.test(5)
-    #p.solve()
+    # p.scores()
+    # p.solve()
 
 
 if __name__ == '__main__':
