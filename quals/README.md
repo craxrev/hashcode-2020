@@ -1,4 +1,4 @@
-# hashcode-2020
+# hashcode-2020-quals
 
 **Current scores**:
 
